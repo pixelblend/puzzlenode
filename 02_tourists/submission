@@ -1,0 +1,4 @@
+#!/usr/bin/env ruby
+require 'lib/flight'
+
+puts 'Flight not implemented yet'
