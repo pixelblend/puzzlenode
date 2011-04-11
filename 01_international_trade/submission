@@ -1,0 +1,4 @@
+#!/usr/bin/env ruby
+require 'lib/trade'
+
+puts Trade.new.total_sales('DM1182').to_f.to_s

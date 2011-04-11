@@ -63,11 +63,18 @@ class Trade
     end
 
     begin
-      mid_rate = @rates.select{|r| r.source == source}.first
-      end_rate = @rates.select{|r| r.source == mid_rate.destination && r.destination == destination}.first
+			rates = []
+			rates << @rates.select{|r| r.source == source}.first
 
-      return (amount * mid_rate.amount * end_rate.amount)
-    rescue
+			while(rates.last.destination != destination)
+				rate = @rates.select{|r| r.source == rates.last.destination && r.destination == destination}.first
+				rate = @rates.select{|r| r.source == rates.last.destination && r.destination != rates.last.source}.first if rate.nil?
+				raise if rate.nil?
+				rates << rate
+			end 
+
+      return (amount * rates.inject(BigDecimal('1')){|sum,r| sum * r.amount})
+    rescue Exception => e
       raise "Nothing found for #{source} => #{destination }"
     end
   end
