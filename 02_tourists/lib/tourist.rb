@@ -1,0 +1,3 @@
+class Tourist
+
+end
