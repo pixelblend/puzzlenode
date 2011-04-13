@@ -18,7 +18,6 @@ describe Flight do
 
   it "should have 7 flights in set 2" do
     Flight.flights[1].should have(7).things
-    #Flight.set_2.should have(7).things
   end
 
   it "should parse flight data correctly" do
@@ -32,10 +31,18 @@ describe Flight do
   end
 
   it 'should find the fastest route for set 1' do
-    Flight.fastest_for_set(1).to_s.should == '09:00 13:30 200.00'
+    Flight.fastest_for_set(1).to_s.should == '10:00 12:00 300.00'
   end
 
   it 'should find the cheapest route for set 1' do
-    Flight.cheapest_for_set(1).to_s.should == '10:00 12:00 300.00'
+    Flight.cheapest_for_set(1).to_s.should == '09:00 13:30 200.00'
+  end
+
+  it 'should find the fastest route for set 2' do
+    Flight.fastest_for_set(2).to_s.should == '12:00 16:30 550.00'
+  end
+
+  it 'should find the cheapest route for set 2' do
+    Flight.cheapest_for_set(2).to_s.should == '08:00 19:00 225.00' 
   end
 end
