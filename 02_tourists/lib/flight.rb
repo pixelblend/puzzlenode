@@ -1,18 +1,21 @@
 require 'time'
+
 Flight = Struct.new(:departure, :arrival, :departure_time, :arrival_time, :price) do
-  FlightSet = Struct.new(:duration, :price, :flights, :depart, :arrive) do
+  FlightSet = Struct.new(:price, :flights, :depart, :arrive) do
     def initialize(*args)
       super
-      self.duration = 0
       self.price    = 0.0
       self.flights = []
+    end
+
+    def duration
+      ((Time.parse(self.arrive) - Time.parse(self.depart)).abs/60).round
     end
 
     def <<(flight)
       self.depart ||= flight.departure_time
       self.arrive = flight.arrival_time
       self.price += flight.price.to_f
-      self.duration += flight.duration
       self.flights << flight
     end
 
@@ -61,14 +64,26 @@ Flight = Struct.new(:departure, :arrival, :departure_time, :arrival_time, :price
 
   def self.cheapest_for_set(set_num)
     routes = routed_flights_for_set(set_num)
-    sorted_routes = routes.sort_by{|rs| rs.price} 
-    formatted_route sorted_routes.first
+    sorted_routes = routes.group_by{|rs| rs.price} 
+    cheapest_routes = sorted_routes[sorted_routes.keys.sort.first]
+
+    if cheapest_routes.size == 1
+      formatted_route cheapest_routes.first
+    else
+      formatted_route fastest_routes.sort_by{|r| r.duration}.first
+    end
   end
 
   def self.fastest_for_set(set_num)
     routes = routed_flights_for_set(set_num)
-    sorted_routes = routes.sort_by{|rs| rs.duration}
-    formatted_route sorted_routes.first
+    sorted_routes = routes.group_by{|rs| rs.duration}
+    fastest_routes = sorted_routes[sorted_routes.keys.sort.first]
+
+    if fastest_routes.size == 1
+      formatted_route fastest_routes.first
+    else
+      formatted_route fastest_routes.sort_by{|r| r.price}.first
+    end
   end
 
   def self.routed_flights_for_set(set_num)
@@ -88,6 +103,7 @@ Flight = Struct.new(:departure, :arrival, :departure_time, :arrival_time, :price
 
       routes += all_routes
     end
+    #debugger if routes.include?(nil)
     @@routed_flights[set_num-1] = routes.compact
   end
 
@@ -104,6 +120,8 @@ Flight = Struct.new(:departure, :arrival, :departure_time, :arrival_time, :price
 
       case next_steps.size
       when 0
+        #this is a dead-end
+        route = nil
         break
       when 1
         route << next_steps.first
@@ -113,18 +131,14 @@ Flight = Struct.new(:departure, :arrival, :departure_time, :arrival_time, :price
           clone_route << flight
           plot_flight_route(clone_route)
         end
-        return next_routes
+        return next_routes.flatten
       end
     end
     return route
   end
 
   def self.formatted_route(flight_set)
-    "#{flight_set.depart} #{flight_set.arrive} #{flight_set.price}0"
+    "#{flight_set.depart} #{flight_set.arrive} #{sprintf('%.02f',flight_set.price)}"
   end
 
-  def duration
-    #in minutes
-    ((Time.parse(arrival_time) - Time.parse(departure_time)).abs/60).round
-  end
 end

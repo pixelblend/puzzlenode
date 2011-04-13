@@ -1,4 +1,24 @@
 #!/usr/bin/env ruby
 require 'lib/flight'
 
-puts 'Flight not implemented yet'
+require 'rubygems'
+require 'ruby-debug'
+
+Flight.import
+
+f = File.open('submission.txt', 'w')
+
+begin
+
+Flight.sets.times do |i|
+  f.write Flight.cheapest_for_set(i+1)+"\n"
+  f.write Flight.fastest_for_set(i+1)+"\n"
+  f.write "\n"
+end
+
+rescue
+  puts 'FAIL'
+ensure
+  f.close
+  puts File.read('submission.txt')
+end
