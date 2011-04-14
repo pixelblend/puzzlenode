@@ -1,0 +1,22 @@
+#!/usr/bin/env ruby
+require 'lib/spell_check'
+
+require 'rubygems'
+require 'ruby-debug'
+
+SpellCheck.import
+
+f = File.open('submission.txt', 'w')
+
+begin
+
+SpellCheck.searches.each do |s|
+  f.write s.best_match+"\n"
+end
+
+rescue Exception => e
+  puts e.to_s
+ensure
+  f.close
+  puts File.read('submission.txt')
+end
