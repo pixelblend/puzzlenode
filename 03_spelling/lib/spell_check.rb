@@ -12,44 +12,23 @@ SpellCheck = Struct.new(:search, :dictionary) do
     word = word.split(//)
     search_split = search.split(//)
 
-    total_sequence = 0
-
-#    #create search chunk from spelling (smallest first)
-#    (0..search_split.size-1).each do |l_index|
-#      #total_sequence = chunk if included in spelling
-#      (1..search_split.size).each do |r_index|
-#        search_chunk=search_split[l_index..-r_index].to_s
-#        next if search_chunk.empty?
-#        puts search_chunk
-#        if word.include?(search_chunk)
-#          total_sequence = search_chunk.size if search_chunk.size > total_sequence
-#        end
-#      end
-#    end
-#
-#    (0..search_split.size-1).each do |l_index|
-#      #total_sequence = chunk if included in spelling
-#      (1..search_split.size).each do |r_index|
-#        #puts search_chunk.to_s
-#        search_chunk=search_split[l_index..-r_index]
-#        if word.reverse.include?(search_chunk)
-#          total_sequence = search_chunk.size if search_chunk.size > total_seqeunce
-#        end
-#      end
-#    end
-
-    word.each_with_index do |char,index|
-      if char == search_split[index]
-        total_sequence += 1
+    total_sequence = {}
+    search_split.each_with_index do |char,index|
+      if char == word[index]
+        total_sequence[char] ||= Set.new
+        total_sequence[char] << index
       end
     end
 
-    word.reverse.each_with_index do |char,index|
-      if char == search_split.reverse[index]
-        total_sequence += 1
+    (1..search_split.size-1).each do |index|
+      char = search_split[-index]
+      if char == word[-index]
+        total_sequence[char] ||= Set.new
+        total_sequence[char] << search_split.size-index
       end
     end
-    total_sequence
+
+    total_sequence.values.inject(0){|sum,count| sum + count.size}
   end
 
   def self.import(file_name='INPUT.txt')
